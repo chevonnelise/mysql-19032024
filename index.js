@@ -1,19 +1,23 @@
 const express = require('express');
 const hbs = require('hbs');
 const wax = require('wax-on');
-require('dotenv').config();
 const { createConnection } = require('mysql2/promise');
-const { connect } = require('http2');
-const { redirect } = require('express/lib/response');
+require('dotenv').config();
 
 let app = express();
 
 // set up the view engine
 app.set('view engine', 'hbs');
+
+require('handlebars-helpers')({
+    handlebars: hbs.handlebars
+})
 app.use(express.static('public'));
 
 // enable form processing
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({
+    extended: false
+}));
 
 // wax-on (template inheritance)
 wax.on(hbs.handlebars);
@@ -103,9 +107,28 @@ async function main() {
 
     app.get('/update-customers/:customerId', async function (req,res){
         const {customerId} = req.params;
-        const {}
+        const query =`SELECT * FROM Customers WHERE customer_id = ${customerId}`
+        const [customers] = await connection.execute(query);
+        const wantedCustomer = customers[0];
+        const [companies] = await connection.execute(`SELECT * FROM Companies`);
+
+        res.render('update-customer', {
+            'customer': wantedCustomer,
+            'companies': companies
+        })
     })
 
+    app.post('/update-customers/:customerId', async function (req,res){
+        const {customerId} = req.params;
+        const {first_name, last_name, rating, company_id} = req.body
+        const query = `UPDATE Customers SET first_name="${first_name}", 
+                        last_name="${last_name}", 
+                        rating="${rating}", 
+                        company_id="${company_id}"
+                        WHERE customer_id = 1; `
+        await connection.execute(query);
+        res.redirect('/customers');
+    })
 }
 
 main();
