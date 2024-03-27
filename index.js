@@ -32,28 +32,39 @@ async function main() {
         'password': process.env.DB_PASSWORD
     })
 
-    app.get('/customers', async function (req, res){
-        let [customers] = await connection.execute(`
+    app.get('/customers', async function (req, res) {
+
+        const {search} = req.query;
+        let [customers] = !search?await connection.execute(`
         SELECT Customers.*, Companies.name AS company_name FROM Customers JOIN 
         Companies ON Customers.company_id = Companies.company_id
         ORDER BY first_name
-        `);
-        res.render('customers',{
+        `): await connection.execute(`
+        SELECT Customers.*, Companies.name AS company_name FROM Customers JOIN 
+        Companies ON Customers.company_id = Companies.company_id WHERE first_name LIKE ? OR last_name LIKE ?
+        ORDER BY first_name
+        `, [`%${search}%`, `%${search}%`]);
+        res.render('customers', {
             'customers': customers
         })
     })
+    
+    app.post('/customers', async function (req, res) {
+        const { name } = req.body;
+        res.redirect(`/customers?search=${encodeURIComponent(name)}`)
+    })
 
-    app.get('/create-customers', async function(req,res){
+    app.get('/create-customers', async function (req, res) {
         const [companies] = await connection.execute(`SELECT * FROM Companies`);
         const [employees] = await connection.execute(`SELECT * FROM Employees`);
         res.render('create-customers', {
             companies,
             employees
-        }); 
+        });
     })
 
-    app.post('/create-customers', async function(req,res){
-        const {first_name,last_name,rating,company_id} = req.body;
+    app.post('/create-customers', async function (req, res) {
+        const { first_name, last_name, rating, company_id } = req.body;
         const query = `INSERT INTO Customers (first_name, last_name, rating, company_id)
         VALUES ("${first_name}", "${last_name}", ${rating}, ${company_id});`
 
@@ -61,10 +72,10 @@ async function main() {
 
         const insertId = response.insertId;
 
-        const {selectedEmployees} = req.body;
+        const { selectedEmployees } = req.body;
 
         let employeeArray = [];
-        if (Array.isArray(selectedEmployees)){
+        if (Array.isArray(selectedEmployees)) {
             employeeArray = selectedEmployees;
         } else {
             employeeArray.push(selectedEmployees);
@@ -78,20 +89,20 @@ async function main() {
         res.redirect('/customers');
     })
 
-    app.get("/delete-customers/:customerId", async function (req,res){
-        const {customerId} = req.params;
+    app.get("/delete-customers/:customerId", async function (req, res) {
+        const { customerId } = req.params;
         const query = `SELECT * FROM Customers WHERE customer_id = ?`
 
         const [customers] = await connection.execute(query, [customerId]);
-        const customerToDelete = customers[0]; 
+        const customerToDelete = customers[0];
 
         res.render('delete-customer', {
             'customer': customerToDelete
         })
     })
 
-    app.post('/delete-customers/:customerId', async function (req, res){
-        const {customerId} = req.params;
+    app.post('/delete-customers/:customerId', async function (req, res) {
+        const { customerId } = req.params;
 
         // check if the customerId is in a relationship with an employee
         const checkCustomerQuery = `SELECT * FROM EmployeeCustomer WHERE customer_id = ${customer_id}`
@@ -102,12 +113,12 @@ async function main() {
         }
         const query = `DELETE FROM Customers WHERE customer_id = ${customerId}`
         await connection.execute(query);
-        res.redirect('/customers'); 
+        res.redirect('/customers');
     })
 
-    app.get('/update-customers/:customerId', async function (req,res){
-        const {customerId} = req.params;
-        const query =`SELECT * FROM Customers WHERE customer_id = ${customerId}`
+    app.get('/update-customers/:customerId', async function (req, res) {
+        const { customerId } = req.params;
+        const query = `SELECT * FROM Customers WHERE customer_id = ${customerId}`
         const [customers] = await connection.execute(query);
         const wantedCustomer = customers[0];
         const [companies] = await connection.execute(`SELECT * FROM Companies`);
@@ -118,9 +129,9 @@ async function main() {
         })
     })
 
-    app.post('/update-customers/:customerId', async function (req,res){
-        const {customerId} = req.params;
-        const {first_name, last_name, rating, company_id} = req.body
+    app.post('/update-customers/:customerId', async function (req, res) {
+        const { customerId } = req.params;
+        const { first_name, last_name, rating, company_id } = req.body
         const query = `UPDATE Customers SET first_name="${first_name}", 
                         last_name="${last_name}", 
                         rating="${rating}", 
@@ -133,6 +144,6 @@ async function main() {
 
 main();
 
-app.listen(3000, function(){
+app.listen(3000, function () {
     console.log("Server has started");
 })

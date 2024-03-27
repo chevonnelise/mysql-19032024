@@ -24,7 +24,13 @@
         </tr>
         {{/each}}
     </tbody>
-
+<form method="post">
+    <div>
+        <label>Search for customer by first/last name</label>
+        <input type="text" name="name" class="form-control"/>
+        <button type="submit" class="btn btn-light" >Search</button>
+    </div>
+</form>
 </table>
 {{/block}}
 
