@@ -1,3 +1,4 @@
+
 const express = require('express');
 const hbs = require('hbs');
 const wax = require('wax-on');
@@ -35,6 +36,7 @@ async function main() {
     app.get('/customers', async function (req, res) {
 
         const {search} = req.query;
+        console.log(search);
         let [customers] = !search?await connection.execute(`
         SELECT Customers.*, Companies.name AS company_name FROM Customers JOIN 
         Companies ON Customers.company_id = Companies.company_id
@@ -72,16 +74,17 @@ async function main() {
 
         const insertId = response.insertId;
 
-        const { selectedEmployees } = req.body;
-
+        const { employees } = req.body;
+        console.log(employees);
         let employeeArray = [];
-        if (Array.isArray(selectedEmployees)) {
-            employeeArray = selectedEmployees;
+        if (Array.isArray(employees)) {
+            employeeArray = employees;
         } else {
-            employeeArray.push(selectedEmployees);
+            employeeArray.push(employees);
         }
-
+        console.log(employeeArray);
         for (let employee_id of employeeArray) {
+            console.log(employee_id,insertId)
             await connection.execute(`INSERT INTO EmployeeCustomer(employee_id,customer_id)
                                 VALUES (?, ?)
             `, [employee_id, insertId])
@@ -105,7 +108,7 @@ async function main() {
         const { customerId } = req.params;
 
         // check if the customerId is in a relationship with an employee
-        const checkCustomerQuery = `SELECT * FROM EmployeeCustomer WHERE customer_id = ${customer_id}`
+        const checkCustomerQuery = `SELECT * FROM EmployeeCustomer WHERE customer_id = ${customerId}`
         const [involved] = await connection.execute(checkCustomerQuery);
         if (involved.length > 0) {
             res.send("Unable to delete because the customer is in a sales relationship with an employee")
