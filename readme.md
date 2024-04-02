@@ -1,3 +1,11 @@
+# About this project
+This project is a MySQL database.
+
+# Installation
+To run the databases, insert schema.sql data: in the terminal, type in `mysql -u root < schema.sql`
+To run the databases, insert data.sql data: in the terminal, type in `mysql -u root < data.sql`
+
+# Usage
 To start mysql, in the terminal, type in `mysql -u root`
 
 # Create a new database user
