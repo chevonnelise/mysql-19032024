@@ -40,11 +40,11 @@ async function main() {
         let [customers] = !search?await connection.execute(`
         SELECT Customers.*, Companies.name AS company_name FROM Customers JOIN 
         Companies ON Customers.company_id = Companies.company_id
-        ORDER BY first_name
+        ORDER BY customer_id
         `): await connection.execute(`
         SELECT Customers.*, Companies.name AS company_name FROM Customers JOIN 
         Companies ON Customers.company_id = Companies.company_id WHERE first_name LIKE ? OR last_name LIKE ?
-        ORDER BY first_name
+        ORDER BY customer_id
         `, [`%${search}%`, `%${search}%`]);
         res.render('customers', {
             'customers': customers
