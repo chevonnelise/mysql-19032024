@@ -28,7 +28,7 @@ DB_PASSWORD=<br>
 
 **Create**
 To create a new customer, add in `create-customers` to the end of the port URL. Add in customer's first name, last name, rating, company (that customer invested in), employee (that customer purchased investment from).
-![post-method-create-customers](images/post-method-create-customers.png)
+![post-method-create-customers](images/post-method-customers.png)
 
 **Read**
 To get list of existing customers, add in `/customers` to the end of the port URL. 
