@@ -31,7 +31,7 @@ Add in `/customers` to the end of the port URL.
 It should display this:<br>
 ![get-customers](images/get-customers.png)
 
-*Create*<br>
+***Create***<br>
 - To create a new customer, click on `Add New Customer` button.
 - When redirected, add in customer's first name, last name, rating, company (that customer invested in), employee (that customer purchased investment from).
 
@@ -39,16 +39,16 @@ It should display this:<br>
 ![create-customer](images/create-customer.png)
 
 
-*Read*<br>
+***Read***<br>
 The page rendered with the url ending with `/customers` will get the list of existing customers.
 
 To find a specific customer in the existing list, go to the searchbox and type in the customer's first name or last name.
 
-*Update*<br>
+***Update***<br>
 To update the list of customers, click on `update` button for the specific customer to update that customer's details.
 - When redirected, amend the customer's first name, last name, rating, company (that customer invested in), employee (that customer purchased investment from).
 
-*Delete*
+***Delete***<br>
 To delete a customer, click on `delete` button for the specific customer to update that customer's details.
 - When redirected, click on `confirm` if this is the customer you want to delete.
 
