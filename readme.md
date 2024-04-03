@@ -26,21 +26,29 @@ DB_PASSWORD=<br>
 
 4. To start server, in the terminal, type in `npm install -g nodemon` then `nodemon`
 
-**Create**
-To create a new customer, add in `create-customers` to the end of the port URL. Add in customer's first name, last name, rating, company (that customer invested in), employee (that customer purchased investment from).
-![post-method-create-customers](images/post-method-customers.png)
-
-**Read**
-To get list of existing customers, add in `/customers` to the end of the port URL. 
+**Perform CRUD**<br>
+Add in `/customers` to the end of the port URL. 
+It should display this:<br>
 ![get-customers](images/get-customers.png)
+
+*Create*<br>
+- To create a new customer, click on `Add New Customer` button.
+- When redirected, add in customer's first name, last name, rating, company (that customer invested in), employee (that customer purchased investment from).
+
+It should display this:<br>
+![create-customer](images/create-customer.png)
+
+
+*Read*<br>
+The page rendered with the url ending with `/customers` will get the list of existing customers.
 
 To find a specific customer in the existing list, go to the searchbox and type in the customer's first name or last name.
 
-**Update**
-To update the list of customers, you can do after adding in `/customers` to the end of the port URL, click on `update` button for the specific customer to update that customer's details.
-![get-customers](images/get-customers.png)
+*Update*<br>
+To update the list of customers, click on `update` button for the specific customer to update that customer's details.
+- When redirected, amend the customer's first name, last name, rating, company (that customer invested in), employee (that customer purchased investment from).
 
-**Delete**
-To delete a customer, you can do after adding in `/customers` to the end of the port URL, click on `delete` button for the specific customer to update that customer's details.
-![get-customers](images/get-customers.png)
+*Delete*
+To delete a customer, click on `delete` button for the specific customer to update that customer's details.
+- When redirected, click on `confirm` if this is the customer you want to delete.
 
