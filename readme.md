@@ -44,10 +44,12 @@ It should display this:<br>
 - To find a specific customer in the existing list, go to the searchbox and type in the customer's first name or last name.
 
 ***Update***<br>
+- The page rendered with the url ending with `/customers` will get the list of existing customers.
 - To update the list of customers, click on `update` button for the specific customer to update that customer's details.
 - When redirected, amend the customer's first name, last name, rating, company (that customer invested in), employee (that customer purchased investment from).
 
 ***Delete***<br>
+- The page rendered with the url ending with `/customers` will get the list of existing customers.
 - To delete a customer, click on `delete` button for the specific customer to update that customer's details.
 - When redirected, click on `confirm` if this is the customer you want to delete.
 
