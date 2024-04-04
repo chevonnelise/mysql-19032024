@@ -4,9 +4,9 @@ This project is a MySQL database for a financial advisory company.
 **Entity-Relationship Diagram (ERD)**
 ![erd](entity-framework/financial-advisory-company-erd.png)
 
-# Installation
-To run the databases, insert schema.sql data: in the terminal, type in `mysql -u root < dataset/schema.sql`<br>
-To run the databases, insert data.sql data: in the terminal, type in `mysql -u root < dataset/data.sql`
+# Adding dataset to the database
+1. Insert schema.sql data: in the terminal, type in `mysql -u root < dataset/schema.sql`<br>
+2. Insert data.sql data: in the terminal, type in `mysql -u root < dataset/data.sql`
 
 # Usage
 **Check data in dataset**
