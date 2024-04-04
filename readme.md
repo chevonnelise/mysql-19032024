@@ -18,11 +18,7 @@ This project is a MySQL database for a financial advisory company.
 **Do CRUD in terminal**
 1. To initialize, in the terminal, type in `npm init -y`
 2. To run packages, in the terminal, type in `npm install`
-3. To ensure that the CRUD is working, add a `.env` file and copy+paste the following:<br>
-DB_HOST=localhost<br>
-DB_USER=root<br>
-DB_NAME=crm<br>
-DB_PASSWORD=<br>
+3. To ensure that the CRUD is working, add a `.env` file.
 
 4. To start server, in the terminal, type in `npm install -g nodemon` then `nodemon`
 
