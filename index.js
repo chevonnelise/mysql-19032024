@@ -1,4 +1,3 @@
-
 const express = require('express');
 const hbs = require('hbs');
 const wax = require('wax-on');
@@ -32,6 +31,14 @@ async function main() {
         'database': process.env.DB_NAME,
         'password': process.env.DB_PASSWORD
     })
+
+    // routes
+    const landingRoutes = require('./routes/landing');
+    const productRoutes = require('./routes/products');
+
+    // use the landing routes
+    app.use('/', landingRoutes);
+    app.use('/products', productRoutes);
 
     app.get('/customers', async function (req, res) {
 
