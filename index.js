@@ -1,30 +1,16 @@
 const express = require('express');
-const hbs = require('hbs');
-const wax = require('wax-on');
 const { createConnection } = require('mysql2/promise');
+const cors = require('cors');
 require('dotenv').config();
 
 let app = express();
 
-// set up the view engine
-app.set('view engine', 'hbs');
-
-require('handlebars-helpers')({
-    handlebars: hbs.handlebars
-})
-app.use(express.static('public'));
-
-// enable form processing
-app.use(express.urlencoded({
-    extended: false
-}));
-
-// wax-on (template inheritance)
-wax.on(hbs.handlebars);
-wax.setLayoutPath('./views/layouts');
+// RESTFUL API
+app.use(cors()); // enable cross origin resources sharing
+app.use(express.json()); // enable sending back responses as JSON
+                        // and receiving data as JSON
 
 async function main() {
-    // console.log(process.env);
     const connection = await createConnection({
         'host': process.env.DB_HOST,
         'user': process.env.DB_USER,
@@ -32,15 +18,15 @@ async function main() {
         'password': process.env.DB_PASSWORD
     })
 
-    // routes
-    const landingRoutes = require('./routes/landing');
-    const productRoutes = require('./routes/products');
+    // // routes
+    // const landingRoutes = require('./routes/landing');
+    // const productRoutes = require('./routes/products');
 
-    // use the landing routes
-    app.use('/', landingRoutes);
-    app.use('/products', productRoutes);
+    // // use the landing routes
+    // app.use('/', landingRoutes);
+    // app.use('/products', productRoutes);
 
-    app.get('/customers', async function (req, res) {
+    app.get('/api/customers', async function (req, res) {
 
         const {search} = req.query;
         console.log(search);
@@ -53,26 +39,17 @@ async function main() {
         Companies ON Customers.company_id = Companies.company_id WHERE first_name LIKE ? OR last_name LIKE ?
         ORDER BY customer_id
         `, [`%${search}%`, `%${search}%`]);
-        res.render('customers', {
-            'customers': customers
+        res.json({
+            customers
         })
     })
     
-    app.post('/customers', async function (req, res) {
-        const { name } = req.body;
-        res.redirect(`/customers?search=${encodeURIComponent(name)}`)
-    })
+    // app.post('/customers', async function (req, res) {
+    //     const { name } = req.body;
+    //     res.redirect(`/customers?search=${encodeURIComponent(name)}`)
+    // })
 
-    app.get('/create-customers', async function (req, res) {
-        const [companies] = await connection.execute(`SELECT * FROM Companies`);
-        const [employees] = await connection.execute(`SELECT * FROM Employees`);
-        res.render('create-customers', {
-            companies,
-            employees
-        });
-    })
-
-    app.post('/create-customers', async function (req, res) {
+    app.post('/api/customers', async function (req, res) {
         const { first_name, last_name, rating, company_id } = req.body;
         const query = `INSERT INTO Customers (first_name, last_name, rating, company_id)
         VALUES ("${first_name}", "${last_name}", ${rating}, ${company_id});`
@@ -96,22 +73,12 @@ async function main() {
                                 VALUES (?, ?)
             `, [employee_id, insertId])
         }
-        res.redirect('/customers');
+        res.json({
+            'new_customer_id': insertId
+        });
     })
 
-    app.get("/delete-customers/:customerId", async function (req, res) {
-        const { customerId } = req.params;
-        const query = `SELECT * FROM Customers WHERE customer_id = ?`
-
-        const [customers] = await connection.execute(query, [customerId]);
-        const customerToDelete = customers[0];
-
-        res.render('delete-customer', {
-            'customer': customerToDelete
-        })
-    })
-
-    app.post('/delete-customers/:customerId', async function (req, res) {
+    app.delete('/api/customers/:customerId', async function (req, res) {
         const { customerId } = req.params;
 
         // check if the customerId is in a relationship with an employee
@@ -123,32 +90,23 @@ async function main() {
         }
         const query = `DELETE FROM Customers WHERE customer_id = ${customerId}`
         await connection.execute(query);
-        res.redirect('/customers');
+        res.json({
+            'status':"Customer has been deleted"
+        });
     })
 
-    app.get('/update-customers/:customerId', async function (req, res) {
-        const { customerId } = req.params;
-        const query = `SELECT * FROM Customers WHERE customer_id = ${customerId}`
-        const [customers] = await connection.execute(query);
-        const wantedCustomer = customers[0];
-        const [companies] = await connection.execute(`SELECT * FROM Companies`);
-
-        res.render('update-customer', {
-            'customer': wantedCustomer,
-            'companies': companies
-        })
-    })
-
-    app.post('/update-customers/:customerId', async function (req, res) {
+    app.put('/api/customers/:customerId', async function (req, res) {
         const { customerId } = req.params;
         const { first_name, last_name, rating, company_id } = req.body
         const query = `UPDATE Customers SET first_name="${first_name}", 
                         last_name="${last_name}", 
                         rating="${rating}", 
                         company_id="${company_id}"
-                        WHERE customer_id = 1; `
+                        WHERE customer_id = ${customerId}; `
         await connection.execute(query);
-        res.redirect('/customers');
+        res.json({
+            'message': "The user has been updated successfully."
+        });
     })
 }
 

@@ -11,11 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "handlebars-helpers": "^0.10.0",
-    "hbs": "^4.2.0",
-    "mysql2": "^3.9.5",
-    "wax-on": "^1.2.2"
+    "mysql2": "^3.9.5"
   }
 }
