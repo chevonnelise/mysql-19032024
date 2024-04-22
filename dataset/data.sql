@@ -1,5 +1,5 @@
 -- Sample INSERT Statements for Financial Advising Company Schema
-use crm;
+USE crm;
 -- Inserting data into Companies
 INSERT INTO Companies (name, description) VALUES
 ('Alpha Investments', 'A leading investment firm specializing in stocks and bonds'),

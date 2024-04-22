@@ -1,117 +1,86 @@
 const express = require('express');
-const { createConnection } = require('mysql2/promise');
 const cors = require('cors');
+const { connectToDB, getConnection } = require('./sql');
+const { getAllCustomers, addCustomer, deleteCustomer, updateCustomer } = require('./customerDataLayer');
+const customerServices = require('./customerServiceLayers');
 require('dotenv').config();
 
-let app = express();
+const app = express();
 
 // RESTFUL API
 app.use(cors()); // enable cross origin resources sharing
 app.use(express.json()); // enable sending back responses as JSON
-                        // and receiving data as JSON
+                         // and reciving data as JSON
 
 async function main() {
-    const connection = await createConnection({
-        'host': process.env.DB_HOST,
-        'user': process.env.DB_USER,
-        'database': process.env.DB_NAME,
-        'password': process.env.DB_PASSWORD
-    })
 
-    // // routes
-    // const landingRoutes = require('./routes/landing');
-    // const productRoutes = require('./routes/products');
+    await connectToDB(
+        process.env.DB_HOST,
+        process.env.DB_USER,
+        process.env.DB_DATABASE,
+        process.env.DB_PASSWORD
+    );
 
-    // // use the landing routes
-    // app.use('/', landingRoutes);
-    // app.use('/products', productRoutes);
+    const connection = getConnection();
 
-    app.get('/api/customers', async function (req, res) {
-
-        const {search} = req.query;
-        console.log(search);
-        let [customers] = !search?await connection.execute(`
-        SELECT Customers.*, Companies.name AS company_name FROM Customers JOIN 
-        Companies ON Customers.company_id = Companies.company_id
-        ORDER BY customer_id
-        `): await connection.execute(`
-        SELECT Customers.*, Companies.name AS company_name FROM Customers JOIN 
-        Companies ON Customers.company_id = Companies.company_id WHERE first_name LIKE ? OR last_name LIKE ?
-        ORDER BY customer_id
-        `, [`%${search}%`, `%${search}%`]);
+    app.get('/api/customers', async function(req,res){
+        const customers = await customerServices.getAllCustomers();
         res.json({
-            customers
+            'customers': customers
         })
-    })
-    
-    // app.post('/customers', async function (req, res) {
-    //     const { name } = req.body;
-    //     res.redirect(`/customers?search=${encodeURIComponent(name)}`)
-    // })
+    });
 
-    app.post('/api/customers', async function (req, res) {
-        const { first_name, last_name, rating, company_id } = req.body;
-        const query = `INSERT INTO Customers (first_name, last_name, rating, company_id)
-        VALUES ("${first_name}", "${last_name}", ${rating}, ${company_id});`
+    app.post('/api/customers', async function(req,res){
+        // We can use object destructuring to quickly do the following:
+        // const first_name = req.body.first_name;
+        // const last_name = req.body.last_name;
+        // const rating = req.body.rating;
+        // const company_id = req.body.company_id;
 
-        const [response] = await connection.execute(query);
-
-        const insertId = response.insertId;
-
-        const { employees } = req.body;
-        console.log(employees);
-        let employeeArray = [];
-        if (Array.isArray(employees)) {
-            employeeArray = employees;
+        // Object Destructuring
+        const { first_name, last_name, rating, company_id, employees} = req.body;
+        const results = await customerServices.addNewCustomer(first_name, last_name, rating, company_id, employees)
+        
+        if (results.success) {
+            res.json({
+                'new_customer_id': results.insertId
+            })
         } else {
-            employeeArray.push(employees);
+            res.json(400);
+            res.json(results);
         }
-        console.log(employeeArray);
-        for (let employee_id of employeeArray) {
-            console.log(employee_id,insertId)
-            await connection.execute(`INSERT INTO EmployeeCustomer(employee_id,customer_id)
-                                VALUES (?, ?)
-            `, [employee_id, insertId])
-        }
-        res.json({
-            'new_customer_id': insertId
-        });
+      
+   
     })
 
-    app.delete('/api/customers/:customerId', async function (req, res) {
-        const { customerId } = req.params;
-
-        // check if the customerId is in a relationship with an employee
-        const checkCustomerQuery = `SELECT * FROM EmployeeCustomer WHERE customer_id = ${customerId}`
-        const [involved] = await connection.execute(checkCustomerQuery);
-        if (involved.length > 0) {
-            res.send("Unable to delete because the customer is in a sales relationship with an employee")
-            return;
+    app.delete('/api/customers/:customerId', async function(req,res){
+        const {customerId} = req.params;
+        const results = await deleteCustomer(customerId);
+        if (results.success) {
+            res.status(200);
+            res.json(results);
+        } else {
+            res.status(400);
+            res.json(results);
         }
-        const query = `DELETE FROM Customers WHERE customer_id = ${customerId}`
-        await connection.execute(query);
-        res.json({
-            'status':"Customer has been deleted"
-        });
     })
 
-    app.put('/api/customers/:customerId', async function (req, res) {
-        const { customerId } = req.params;
-        const { first_name, last_name, rating, company_id } = req.body
-        const query = `UPDATE Customers SET first_name="${first_name}", 
-                        last_name="${last_name}", 
-                        rating="${rating}", 
-                        company_id="${company_id}"
-                        WHERE customer_id = ${customerId}; `
-        await connection.execute(query);
+    app.put('/api/customers/:customerId', async function(req,res){
+        const {customerId} = req.params;
+       
+        await updateCustomer(customerId, {...req.body});
         res.json({
-            'message': "The user has been updated successfully."
+            'message':"The user has been updated successfully"
         });
+        
     })
+
 }
 
 main();
 
-app.listen(3000, function () {
-    console.log("Server has started");
+
+
+app.listen(3000, function(){
+    console.log("server has started");
 })
