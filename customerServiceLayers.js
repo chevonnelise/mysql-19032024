@@ -6,8 +6,8 @@ async function getAllCustomers() {
     return customers;
 }
 
-async function addNewCustomer(first_name, last_name, rating, company_id, employees) {
-    console.log(employees);
+async function addCustomer(first_name, last_name, rating, company_id, employees) {
+    console.log(employees)
     // make sure each of the employee is not serving 10 customers already because 10 is the max
     for (let employeeId of employees) {
         const customerCount = await getCustomerCountForEmployee(employeeId);
@@ -20,7 +20,7 @@ async function addNewCustomer(first_name, last_name, rating, company_id, employe
     }
 
 
-    const results = await data.addCustomer(first_name, last_name, rating, company_id, employees);
+    const results = await data.addCustomer(first_name, last_name, rating, company_id);
     return {
         'success': true,
         'insertId': results
@@ -28,4 +28,20 @@ async function addNewCustomer(first_name, last_name, rating, company_id, employe
 
 }
 
-module.exports = { getAllCustomers, addNewCustomer};
+async function findOneCustomer(customerId){
+    const customer = await data.findOneCustomer(customerId);
+    console.log("customer service layer here", customer);
+    return customer;
+}
+
+async function updateCustomer(customerId, newData){
+    const result = await data.updateCustomer(customerId, newData);
+    return result;
+}
+
+async function deleteCustomer(customerId){
+    const customer = await data.deleteCustomer(customerId);
+    return customer;
+}
+
+module.exports = { getAllCustomers, addCustomer, findOneCustomer, deleteCustomer, updateCustomer};
